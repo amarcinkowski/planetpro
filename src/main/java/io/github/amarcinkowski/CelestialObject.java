@@ -11,18 +11,25 @@ public class CelestialObject {
 	Double distance;
 	Double transittime;
 	Double moons;
+	String parent;
 
 	public enum CelestialObjectType {
 		STAR, PLANET, MOON, ASTEROID, NEBULAE, GALAXY, CLUSTER, PULSAR, QUASAR, BLACKHOLE, DARKMATTER
 	}
 
-	public String size() {
-		return "[" + (int) Math.ceil(Math.log10(diameter)) + "]";
+	public int size() {
+		Double logdia = Math.log10(diameter);
+		return (int) Math.ceil(logdia.doubleValue());
+	}
+	
+	public int mass() {
+		Double logdia = Math.log10(mass);
+		return (int) Math.ceil(logdia.doubleValue());
 	}
 
 	@Override
 	public String toString() {
-		return String.format("%7s%4s%53s", type, size(), name);
+		return String.format("%11s [%3d|%3d]%73s", type, size(), mass(), name);
 	}
 
 }

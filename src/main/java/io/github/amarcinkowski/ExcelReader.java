@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Vector;
@@ -46,7 +47,9 @@ public class ExcelReader {
 				Cell cell = cellIterator.next();
 
 				if (firstLine) {
-					rowHeader.add(cell.getStringCellValue());
+					String cellValue = cell.getStringCellValue();
+					cellValue = stripUnits(cellValue);
+					rowHeader.add(cellValue);
 				} else {
 					try {
 						String fieldName = rowHeader.elementAt(fieldIndex).toLowerCase();
@@ -70,7 +73,9 @@ public class ExcelReader {
 							break;
 						case "Double":
 						case "Integer":
+						case "BigDecimal":
 							logger.trace("/T:" + field.getName() + "/V:" + value + "/");
+							value = fieldType.equals("BigDecimal") ? new BigDecimal((double) value) : value;
 							field.set(co, value);
 							break;
 						case "Enum":
@@ -113,6 +118,10 @@ public class ExcelReader {
 		logger.trace(rowHeader.toString());
 
 		return null;
+	}
+
+	private static String stripUnits(String cellValue) {
+		return cellValue.contains("[") ? cellValue.substring(0, cellValue.indexOf("[")) : cellValue;
 	}
 
 	@SuppressWarnings("unchecked")
