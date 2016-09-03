@@ -19,6 +19,11 @@ import org.slf4j.LoggerFactory;
 
 public class ExcelReader {
 
+	
+	class UniverseSerializer {
+		
+	}
+	
 	final static Logger logger = LoggerFactory.getLogger(ExcelReader.class);
 
 	static Vector<String> rowHeader = new Vector<>();
@@ -96,7 +101,7 @@ public class ExcelReader {
 						}
 					} catch (NoSuchFieldException | SecurityException | IllegalArgumentException
 							| IllegalAccessException | ClassNotFoundException e) {
-						e.printStackTrace();
+						logger.warn(String.format("%s: %s", e.getClass(), e.getMessage()));
 					}
 
 				}

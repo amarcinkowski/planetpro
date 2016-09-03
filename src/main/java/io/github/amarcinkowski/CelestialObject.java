@@ -14,22 +14,20 @@ public class CelestialObject {
 	String parent;
 
 	public enum CelestialObjectType {
-		STAR, PLANET, MOON, ASTEROID, NEBULAE, GALAXY, CLUSTER, PULSAR, QUASAR, BLACKHOLE, DARKMATTER
+		STAR, PLANET, MOON, ASTEROID, NEBULAE, GALAXY, CLUSTER, PULSAR, QUASAR, BLACKHOLE, OTHER,
+		// http://cdms.berkeley.edu/Education/DMpages/FAQ/question36.html
+		DARKMATTER
 	}
 
-	public int size() {
-		Double logdia = Math.log10(diameter);
-		return (int) Math.ceil(logdia.doubleValue());
-	}
-	
-	public int mass() {
-		Double logdia = Math.log10(mass);
+	private int log(double d) {
+		Double logdia = Math.log10(d);
 		return (int) Math.ceil(logdia.doubleValue());
 	}
 
 	@Override
 	public String toString() {
-		return String.format("%11s [%3d|%3d]%73s", type, size(), mass(), name);
+		Double density = this.mass / (Math.PI * 4 / 3 * Math.pow(this.diameter, 3));
+		return String.format("%11s [%3d|%3d|%3d]%23s", type, log(diameter), log(mass), log(density), name.get("pl"));
 	}
 
 }
