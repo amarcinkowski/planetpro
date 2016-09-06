@@ -15,7 +15,7 @@ import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 public class Neo4jSerializer {
 
 	private static enum RelTypes implements RelationshipType {
-		KNOWS
+		CONTAINS
 	}
 
 	static GraphDatabaseService graphDb = new GraphDatabaseFactory()
@@ -31,20 +31,22 @@ public class Neo4jSerializer {
 
 		try (Transaction tx = graphDb.beginTx()) {
 
-			firstNode = graphDb.createNode(Label.label("message"));
-			firstNode.setProperty("message", "Hello, ");
-			secondNode = graphDb.createNode(Label.label("message"));
-			secondNode.setProperty("message", "World!");
+			firstNode = graphDb.createNode(Label.label("object"));
+			firstNode.setProperty("name", "Sun");
+			secondNode = graphDb.createNode(Label.label("object"));
+			secondNode.setProperty("name", "Earth");
 
-			relationship = firstNode.createRelationshipTo(secondNode, RelTypes.KNOWS);
-			relationship.setProperty("message", "brave Neo4j ");
+			relationship = firstNode.createRelationshipTo(secondNode, RelTypes.CONTAINS);
+			relationship.setProperty("name", "system");
 
-			System.out.print(firstNode.getProperty("message"));
-			System.out.print(relationship.getProperty("message"));
-			System.out.print(secondNode.getProperty("message"));
+			System.out.print(firstNode.getProperty("name"));
+			System.out.print(relationship.getProperty("name"));
+			System.out.print(secondNode.getProperty("name"));
 			// do your stuff
-			try (ResourceIterator<Node> users = graphDb.findNodes(Label.label("message"), "message", "World!")) {
-				System.out.println(users.next());
+			try (ResourceIterator<Node> users = graphDb.findNodes(Label.label("object"), "name", "Earth")) {
+				while (users.hasNext()) {
+					System.out.println(users.next());
+				}
 			}
 			tx.success();
 
