@@ -5,7 +5,6 @@ import java.util.HashMap;
 public class CelestialObject implements Comparable<CelestialObject> {
 
 	HashMap<String, String> name = new HashMap<>();
-	String mainName = "";
 	Enum<CelestialObjectType> type;
 	Double diameter = 0.0;
 	Double mass = 0.0;
@@ -33,14 +32,17 @@ public class CelestialObject implements Comparable<CelestialObject> {
 
 	@Override
 	public String toString() {
-		Double density = this.mass / (Math.PI * 4 / 3 * Math.pow(this.diameter, 3));
+		Double radius = this.diameter / 2;
+		Double density = this.mass / (Math.PI * 4 / 3 * Math.pow(radius, 3));
 		String.format("%#5.2f", new Double(1.75 * Math.pow(10, 12) / density));
 		return String.format("\n%11s [%3d|%3d|%3d]%21s", type, log(diameter), log(mass), log(density), name.get("pl"));
 	}
 
 	@Override
 	public int compareTo(CelestialObject o) {
-		return this.mainName.compareTo(o.mainName);
+		String s1 = this.name.values().iterator().next();
+		String s2 = o.name.values().iterator().next();
+		return s1.compareTo(s2);
 	}
 
 }

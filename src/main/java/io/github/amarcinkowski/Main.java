@@ -14,6 +14,7 @@ public class Main {
 		logger.trace(dynamicTable.toString());
 		Universe universe = UniverseSerializer.load(dynamicTable);
 		logger.info(universe.toString());
+		Neo4jSerializer.fillDB(universe);
 	}
 
 }

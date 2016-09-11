@@ -11,14 +11,14 @@ public class Gravity {
 	public static double getPerimeter(double r) {
 		return r * 2 * Math.PI;
 	}
-/*	
-	public static double getFgrawitNaPowierzchni(CelestialObject object) {
-		return G * object.getWeight() / Math.pow(object.getPromien(), 2);
+	
+	public static double getFgrawitNaPowierzchni(double weight, double radius) {
+		return G * weight / Math.pow(radius, 2);
 	}
 	
-	public static double get1stCosmo(CelestialObject object) {
-		return Math.sqrt(G * object.getWeight() / object.getPromien());
-	}*/
+	public static double get1stCosmo(double weight, double radius) {
+		return Math.sqrt(G * weight / radius);
+	}
 	
 /*	public static void print(String name) {
 		SpaceObject object = SolarSystemBodies.get(name);
