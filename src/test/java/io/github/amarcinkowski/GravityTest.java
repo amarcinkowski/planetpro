@@ -21,7 +21,7 @@ public class GravityTest {
 		CelestialObject earth = universe.get(3);
 		double mass = earth.mass;
 		double radius_meter = earth.diameter * 1000 / 2;
-		double gravit = Gravity.getFgrawitNaPowierzchni(mass, radius_meter);
+		double gravit = Gravity.getSurfaceGravity(mass, radius_meter);
 		double expected = 9.8;
 		Assert.assertEquals(expected, gravit, 0.01);
 	}

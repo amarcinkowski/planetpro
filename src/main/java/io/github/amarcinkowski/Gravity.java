@@ -12,7 +12,7 @@ public class Gravity {
 		return r * 2 * Math.PI;
 	}
 	
-	public static double getFgrawitNaPowierzchni(double weight, double radius) {
+	public static double getSurfaceGravity(double weight, double radius) {
 		return G * weight / Math.pow(radius, 2);
 	}
 	

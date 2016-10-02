@@ -1,6 +1,7 @@
 package io.github.amarcinkowski;
 
 import java.io.File;
+
 import java.util.Iterator;
 
 import org.neo4j.graphdb.Direction;
@@ -16,16 +17,66 @@ import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Neo4jSerializer {
-
-	final static Logger logger = LoggerFactory.getLogger(Neo4jSerializer.class);
-	static Label label = Label.label("object");
+class Neo4jDB {
 
 	private static enum RelTypes implements RelationshipType {
 		CONTAINS, PARENT
 	}
 
 	static GraphDatabaseService graphDb;
+
+	static Label label = Label.label("object");
+
+	private static void startDB() {
+		graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(new File("target/neo4jdb"))
+				.setConfig(GraphDatabaseSettings.pagecache_memory, "512M")
+				.setConfig(GraphDatabaseSettings.string_block_size, "60")
+				.setConfig(GraphDatabaseSettings.array_block_size, "300").newGraphDatabase();
+	}
+
+	public void clearDB() {
+		try (Transaction tx = graphDb.beginTx()) {
+
+			graphDb.execute("MATCH (n) DETACH DELETE n");
+		}
+	}
+
+	public void closeDB() {
+		graphDb.shutdown();
+	}
+
+	public void addObjectsToDB(Universe universe) {
+		try (Transaction tx = graphDb.beginTx()) {
+			for (CelestialObject co : universe) {
+				Node node = graphDb.createNode(label);
+				String name = co.name.get("pl");
+				node.setProperty("name", name);
+				// logger.trace("Adding " + co.name.get("pl"));
+				if (co.parent != null) {
+					node.setProperty("parent", co.parent);
+				}
+			}
+			tx.success();
+		}
+	}
+
+	public void createGraph() {
+		try (ResourceIterator<Node> cos = graphDb.findNodes(label)) {
+			while (cos.hasNext()) {
+				Node coNode = cos.next();
+				if (!coNode.hasProperty("parent")) {
+					continue;
+				}
+				Object prop = coNode.getProperty("parent");
+				Node coParentNode = graphDb.findNode(label, "name", prop);
+				if (coParentNode == null) {
+					continue;
+				}
+				/* Relationship relationship = */coNode.createRelationshipTo(coParentNode, RelTypes.PARENT);
+				/* Relationship relationship = */coParentNode.createRelationshipTo(coNode, RelTypes.CONTAINS);
+			}
+		}
+	}
 
 	private static String recursiveVisit(Node rootNode, String s) {
 		s += String.format("%1s > ", rootNode.getProperty("name").toString().toUpperCase());
@@ -49,43 +100,15 @@ public class Neo4jSerializer {
 		return s;
 	}
 
-	public static void fillDB(Universe universe) {
+}
+
+public class Neo4jSerializer {
+
+	final static Logger logger = LoggerFactory.getLogger(Neo4jSerializer.class);
+
+	public Neo4jSerializer() {
 		startDB();
-		try (Transaction tx = graphDb.beginTx()) {
-
-			graphDb.execute("MATCH (n) DETACH DELETE n");
-
-			for (CelestialObject co : universe) {
-				Node node = graphDb.createNode(label);
-				String name = co.name.get("pl");
-				node.setProperty("name", name);
-				logger.trace("Adding " + co.name.get("pl"));
-				if (co.parent != null) {
-					node.setProperty("parent", co.parent);
-				}
-			}
-
-			try (ResourceIterator<Node> cos = graphDb.findNodes(label)) {
-				while (cos.hasNext()) {
-					Node coNode = cos.next();
-					if (!coNode.hasProperty("parent")) {
-						continue;
-					}
-					Object prop = coNode.getProperty("parent");
-					Node coParentNode = graphDb.findNode(label, "name", prop);
-					if (coParentNode == null) {
-						continue;
-					}
-					/* Relationship relationship = */coNode.createRelationshipTo(coParentNode, RelTypes.PARENT);
-					/* Relationship relationship = */coParentNode.createRelationshipTo(coNode, RelTypes.CONTAINS);
-				}
-			}
-			visit();
-			tx.success();
-		}
-
-		graphDb.shutdown();
-
+		visit();
 	}
 
 	private static void visit() {
@@ -94,10 +117,4 @@ public class Neo4jSerializer {
 		System.out.println(s);
 	}
 
-	private static void startDB() {
-		graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(new File("target/neo4jdb"))
-				.setConfig(GraphDatabaseSettings.pagecache_memory, "512M")
-				.setConfig(GraphDatabaseSettings.string_block_size, "60")
-				.setConfig(GraphDatabaseSettings.array_block_size, "300").newGraphDatabase();
-	}
 }
